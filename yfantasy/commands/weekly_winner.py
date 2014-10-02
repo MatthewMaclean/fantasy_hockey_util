@@ -1,19 +1,102 @@
 import importlib
 from os.path import join, dirname
-
-
+from xml.etree import ElementTree
 yahooapi = importlib.import_module("yfantasy.python-yahooapi.yahooapi")
 
-def weekly_winner(args):
-    api = yahooapi.YahooAPI(join(dirname(__file__), '../../auth'))
 
-# TEAM_ID = "30872"
-# URL_BASE = "http://hockey.fantasysports.yahoo.com/hockey/%s/" % TEAM_ID
-#
-# session = Session()
-# cookies = chrome_cookies(URL_BASE)
-# request = session.get("%smatchup?week=1&mid1=1" % URL_BASE, cookies=cookies)
-# print request.text
-#
-# parser = YahooMatchupParser()
-# parser.feed(html)
+GAME_KEY = "341"
+TEAM_ID = "30872"
+URL_BASE = "http://fantasysports.yahooapis.com/fantasy/v2/league/%s.l.%s/" % \
+    (GAME_KEY, TEAM_ID)
+TAG_PREFIX = "{http://fantasysports.yahooapis.com/fantasy/v2/base.rng}"
+STATS = {
+    "1": "G",
+    "2": "A",
+    "4": "+/-",
+    "5": "PIM",
+    "8": "PPP",
+    "14": "SOG",
+    "31": "HIT",
+    "19": "W",
+    "23": "GAA",
+    "26": "SV%",
+    "27": "SHO"}
+
+COMPARISON = {
+    "1": True,
+    "2": True,
+    "4": True,
+    "5": True,
+    "8": True,
+    "14": True,
+    "31": True,
+    "19": True,
+    "23": False,
+    "26": True,
+    "27": True}
+
+
+def get_element(elem, name):
+    # find wasn't working
+    r = elem.findall("%s%s" % (TAG_PREFIX, name))
+    return r[0]
+
+
+def winners(category):
+    people = []
+    max_set = False
+    max_value = 0
+
+    for k, v in category.iteritems():
+        if not max_set:
+            max_set = True
+            max_value = v
+            people.append(k)
+        elif COMPARISON[k] and v > max_value or COMPARISON[k] and v < max_value:
+            people = [k]
+            max_value = v
+        elif v == max_value:
+            people.append(k)
+
+    return people
+
+
+def weekly_winner(args):
+    results = {}
+    team_counts = {}
+
+    for i in STATS:
+        results[i] = {}
+
+    api = yahooapi.YahooAPI(join(dirname(__file__), '../../auth'))
+    week = raw_input("Which week do you want the scoreboard for? ")
+
+    response = api.request("%sscoreboard;week=%s" % (URL_BASE, week))
+
+    root = ElementTree.fromstring(response.content)
+    for elem in root.iter("%steam" % TAG_PREFIX):
+        name = get_element(elem, "name").text
+
+        for stat in elem.iter("%sstat" % TAG_PREFIX):
+            stat_id = get_element(stat, "stat_id").text
+            value = get_element(stat, "value").text
+
+            if stat_id in STATS:
+                results[stat_id][name] = value
+
+    for k, v in results.iteritems():
+        category_winners = winners(v)
+        print STATS[k], category_winners
+
+        for team in category_winners:
+            if team in team_counts:
+                team_counts[team] += 1
+            else:
+                team_counts[team] = 1
+
+    print "Final Winners"
+    print winners(team_counts)
+
+    print "DEBUG"
+    print results
+    print team_counts
