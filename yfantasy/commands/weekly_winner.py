@@ -42,17 +42,17 @@ def get_element(elem, name):
     return r[0]
 
 
-def winners(category):
+def category_winners(people_points, max_order):
     people = []
     max_set = False
     max_value = 0
 
-    for k, v in category.iteritems():
+    for k, v in people_points.iteritems():
         if not max_set:
             max_set = True
             max_value = v
             people.append(k)
-        elif COMPARISON[k] and v > max_value or COMPARISON[k] and v < max_value:
+        elif max_order and v > max_value or not max_order and v < max_value:
             people = [k]
             max_value = v
         elif v == max_value:
@@ -85,17 +85,17 @@ def weekly_winner(args):
                 results[stat_id][name] = value
 
     for k, v in results.iteritems():
-        category_winners = winners(v)
-        print STATS[k], category_winners
+        winners = category_winners(v, COMPARISON[k])
+        print STATS[k], winners
 
-        for team in category_winners:
+        for team in winners:
             if team in team_counts:
                 team_counts[team] += 1
             else:
                 team_counts[team] = 1
 
     print "Final Winners"
-    print winners(team_counts)
+    print category_winners(team_counts, True)
 
     print "DEBUG"
     print results
