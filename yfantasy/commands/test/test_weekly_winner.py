@@ -1,7 +1,8 @@
 from unittest2 import TestCase
 from yfantasy.commands.weekly_winner import (
     category_winners,
-    parse_api_response)
+    parse_api_response,
+    team_weekly_wins)
 
 
 class WeeklyWinnerTest(TestCase):
@@ -92,4 +93,36 @@ class WeeklyWinnerTest(TestCase):
         self.assertEqual(
             0,
             len(set(expected) ^ set(parse_api_response(inp, "")))
+        )
+
+    def test_weekly_wins(self):
+        inp = {
+            "1": {
+                "A": "1",
+                "B": "3",
+                "C": "5",
+            },
+            "2": {
+                "A": "2",
+                "B": "4",
+                "C": "6",
+            },
+            "3": {
+                "A": "4",
+                "B": "2",
+                "C": "1",
+            }
+        }
+        conversion_array = {
+            "1": True,
+            "2": False,
+            "3": True,
+        }
+        expected = {
+            "A": 1,
+            "C": 2,
+        }
+        self.assertEqual(
+            0,
+            len(set(expected) ^ set(team_weekly_wins(inp, conversion_array)))
         )

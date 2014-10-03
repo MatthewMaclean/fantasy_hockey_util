@@ -81,9 +81,22 @@ def parse_api_response(xml, prefix):
     return results
 
 
-def weekly_winner(args):
+def team_weekly_wins(team_list, comparison_dictionary):
     team_counts = {}
 
+    for k, v in team_list.iteritems():
+        winners = category_winners(v, comparison_dictionary[k])
+
+        for team in winners:
+            if team in team_counts:
+                team_counts[team] += 1
+            else:
+                team_counts[team] = 1
+
+    return team_counts
+
+
+def weekly_winner(args):
     api = yahooapi.YahooAPI(join(dirname(__file__), '../../auth'))
     week = raw_input("Which week do you want the scoreboard for? ")
 
@@ -91,15 +104,7 @@ def weekly_winner(args):
 
     results = parse_api_response(response.content, TAG_PREFIX)
 
-    for k, v in results.iteritems():
-        winners = category_winners(v, COMPARISON[k])
-        print STATS[k], winners
-
-        for team in winners:
-            if team in team_counts:
-                team_counts[team] += 1
-            else:
-                team_counts[team] = 1
+    team_counts = team_weekly_wins(results, COMPARISON)
 
     print "Final Winners"
     print category_winners(team_counts, True)
