@@ -81,11 +81,14 @@ def parse_api_response(xml, prefix):
     return results
 
 
-def team_weekly_wins(team_list, comparison_dictionary):
+def team_weekly_wins(team_list, comparison_dictionary, stats_dictionary=None):
     team_counts = {}
+    print ""
 
     for k, v in team_list.iteritems():
         winners = category_winners(v, comparison_dictionary[k])
+        if stats_dictionary:
+            print stats_dictionary[k], winners
 
         for team in winners:
             if team in team_counts:
@@ -104,7 +107,7 @@ def weekly_winner(args):
 
     results = parse_api_response(response.content, TAG_PREFIX)
 
-    team_counts = team_weekly_wins(results, COMPARISON)
+    team_counts = team_weekly_wins(results, COMPARISON, STATS)
 
     print "Final Winners"
     print category_winners(team_counts, True)
