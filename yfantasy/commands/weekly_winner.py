@@ -36,9 +36,9 @@ COMPARISON = {
     "27": True}
 
 
-def get_element(elem, name):
+def get_element(elem, name, prefix):
     # find wasn't working
-    r = elem.findall("%s%s" % (TAG_PREFIX, name))
+    r = elem.findall("%s%s" % (prefix, name))
     return r[0]
 
 
@@ -61,28 +61,35 @@ def category_winners(people_points, max_order):
     return people
 
 
-def weekly_winner(args):
+def parse_api_response(xml, prefix):
     results = {}
-    team_counts = {}
 
     for i in STATS:
         results[i] = {}
+
+    root = ElementTree.fromstring(xml)
+    for elem in root.iter("%steam" % prefix):
+        name = get_element(elem, "name", prefix).text
+
+        for stat in elem.iter("%sstat" % prefix):
+            stat_id = get_element(stat, "stat_id", prefix).text
+            value = get_element(stat, "value", prefix).text
+
+            if stat_id in STATS:
+                results[stat_id][name] = value
+
+    return results
+
+
+def weekly_winner(args):
+    team_counts = {}
 
     api = yahooapi.YahooAPI(join(dirname(__file__), '../../auth'))
     week = raw_input("Which week do you want the scoreboard for? ")
 
     response = api.request("%sscoreboard;week=%s" % (URL_BASE, week))
 
-    root = ElementTree.fromstring(response.content)
-    for elem in root.iter("%steam" % TAG_PREFIX):
-        name = get_element(elem, "name").text
-
-        for stat in elem.iter("%sstat" % TAG_PREFIX):
-            stat_id = get_element(stat, "stat_id").text
-            value = get_element(stat, "value").text
-
-            if stat_id in STATS:
-                results[stat_id][name] = value
+    results = parse_api_response(response.content, TAG_PREFIX)
 
     for k, v in results.iteritems():
         winners = category_winners(v, COMPARISON[k])
