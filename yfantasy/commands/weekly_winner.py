@@ -111,7 +111,3 @@ def weekly_winner(args):
 
     print "Final Winners"
     print category_winners(team_counts, True)
-
-    print "DEBUG"
-    print results
-    print team_counts
