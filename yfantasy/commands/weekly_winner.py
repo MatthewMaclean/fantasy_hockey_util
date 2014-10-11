@@ -58,7 +58,7 @@ def category_winners(people_points, max_order):
         elif v == max_value:
             people.append(k)
 
-    return people
+    return [people, max_value]
 
 
 def parse_api_response(xml, prefix):
@@ -88,9 +88,9 @@ def team_weekly_wins(team_list, comparison_dictionary, stats_dictionary=None):
     for k, v in team_list.iteritems():
         winners = category_winners(v, comparison_dictionary[k])
         if stats_dictionary:
-            print stats_dictionary[k], winners
+            print winners[1], stats_dictionary[k], winners[0]
 
-        for team in winners:
+        for team in winners[0]:
             if team in team_counts:
                 team_counts[team] += 1
             else:
@@ -110,4 +110,5 @@ def weekly_winner(args):
     team_counts = team_weekly_wins(results, COMPARISON, STATS)
 
     print "Final Winners"
-    print category_winners(team_counts, True)
+    total_winner = category_winners(team_counts, True)
+    print total_winner[1], "points", total_winner[0]

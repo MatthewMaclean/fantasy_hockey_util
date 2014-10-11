@@ -8,19 +8,19 @@ from yfantasy.commands.weekly_winner import (
 class WeeklyWinnerTest(TestCase):
     def test_winner_single(self):
         inp = {"A": 5}
-        self.assertEqual(0, cmp(category_winners(inp, True), ["A"]))
+        self.assertEqual(0, cmp(category_winners(inp, True), [["A"], 5]))
 
     def test_winner_two(self):
         inp = {"A": 5, "B": 5}
-        self.assertEqual(0, cmp(category_winners(inp, True), ["A", "B"]))
+        self.assertEqual(0, cmp(category_winners(inp, True), [["A", "B"], 5]))
 
     def test_winner_replace(self):
         inp = {"A": 5, "B": 6}
-        self.assertEqual(0, cmp(category_winners(inp, True), ["B"]))
+        self.assertEqual(0, cmp(category_winners(inp, True), [["B"], 6]))
 
     def test_winner_reverse_replace(self):
         inp = {"A": 5, "B": 4}
-        self.assertEqual(0, cmp(category_winners(inp, False), ["B"]))
+        self.assertEqual(0, cmp(category_winners(inp, False), [["B"], 4]))
 
     def test_xml_parse(self):
         inp = """
