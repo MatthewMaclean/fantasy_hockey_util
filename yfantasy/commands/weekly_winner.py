@@ -99,7 +99,7 @@ def team_weekly_wins(team_list, comparison_dictionary, stats_dictionary=None):
     return team_counts
 
 
-def weekly_winner(args):
+def weekly_winner():
     api = yahooapi.YahooAPI(
         keyfile=join(dirname(__file__), '../../auth'),
         tokenfile=join(dirname(__file__), '../../token'))
