@@ -100,7 +100,9 @@ def team_weekly_wins(team_list, comparison_dictionary, stats_dictionary=None):
 
 
 def weekly_winner(args):
-    api = yahooapi.YahooAPI(join(dirname(__file__), '../../auth'))
+    api = yahooapi.YahooAPI(
+        keyfile=join(dirname(__file__), '../../auth'),
+        tokenfile=join(dirname(__file__), '../../token'))
     week = raw_input("Which week do you want the scoreboard for? ")
 
     response = api.request("%sscoreboard;week=%s" % (URL_BASE, week))
