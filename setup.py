@@ -1,5 +1,5 @@
 from os import chdir
-from os.path import dirname
+from os.path import dirname, isfile
 
 try:
     from setuptools import setup, find_packages
@@ -15,6 +15,22 @@ root_dir = dirname(__file__)
 
 if root_dir != "":
     chdir(root_dir)
+
+keep = ""
+if isfile('auth'):
+    keep = raw_input("Yahoo developer credentials are already detected, "
+                     "do you wish to keep them? (y/n) ")
+
+if keep is not "y":
+    print ""
+    print "Creating auth file to store yahoo developer credentials"
+    print "https://developer.yahoo.com"
+    print ""
+    consumer_key = raw_input("Enter your consumer key: ")
+    consumer_secret = raw_input("Enter your consumer secret: ")
+
+    f = open('auth', 'w')
+    f.write("%s %s" % (consumer_key, consumer_secret))
 
 setup(
     name='fantasy_hockey_util',
