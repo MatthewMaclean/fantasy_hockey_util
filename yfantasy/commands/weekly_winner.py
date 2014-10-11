@@ -75,7 +75,7 @@ def parse_api_response(xml, prefix):
             stat_id = get_element(stat, "stat_id", prefix).text
             value = get_element(stat, "value", prefix).text
 
-            if stat_id in STATS:
+            if stat_id in STATS and value is not None:
                 results[stat_id][name] = value
 
     return results
