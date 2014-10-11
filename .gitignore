@@ -22,4 +22,4 @@ var/
 # Custom
 /auth
 /token
-*.swp
+*.sw[po]
