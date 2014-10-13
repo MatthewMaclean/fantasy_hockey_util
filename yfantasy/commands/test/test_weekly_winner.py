@@ -18,6 +18,10 @@ class WeeklyWinnerTest(TestCase):
         inp = {"A": 5, "B": 6}
         self.assertEqual(0, cmp(category_winners(inp, True), [["B"], 6]))
 
+    def test_winner_string_bug(self):
+        inp = {"A": "11", "B": "9"}
+        self.assertEqual(0, cmp(category_winners(inp, True), [["A"], 11]))
+
     def test_winner_reverse_replace(self):
         inp = {"A": 5, "B": 4}
         self.assertEqual(0, cmp(category_winners(inp, False), [["B"], 4]))

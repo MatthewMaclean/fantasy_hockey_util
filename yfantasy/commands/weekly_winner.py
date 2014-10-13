@@ -48,10 +48,11 @@ def category_winners(people_points, max_order):
     max_value = 0
 
     for k, v in people_points.iteritems():
+        v = float(v)
         if not max_set:
             max_set = True
             max_value = v
-            people.append(k)
+            people = [k]
         elif max_order and v > max_value or not max_order and v < max_value:
             people = [k]
             max_value = v
