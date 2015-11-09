@@ -4,8 +4,8 @@ from xml.etree import ElementTree
 yahooapi = importlib.import_module("yfantasy.python-yahooapi.yahooapi")
 
 
-GAME_KEY = "341"
-TEAM_ID = "30872"
+GAME_KEY = "nhl"
+TEAM_ID = "60802"
 URL_BASE = "http://fantasysports.yahooapis.com/fantasy/v2/league/%s.l.%s/" % \
     (GAME_KEY, TEAM_ID)
 TAG_PREFIX = "{http://fantasysports.yahooapis.com/fantasy/v2/base.rng}"
