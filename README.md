@@ -13,7 +13,9 @@ Installation
 
 2) Install app by running the following command in the root directory:
 
-$> python setup.py install
+$> python setup.py develop
+
+(don't install as the auth file is local to the code)
 
 The yahoo consumer secret and key required are obtainable from https://developer.yahoo.com.
 
