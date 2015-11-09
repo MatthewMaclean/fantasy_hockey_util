@@ -8,15 +8,16 @@ Gets information from the yahoo fantasy hockey site.
 Installation
 ------------
 
+1) Use 'git clone --recursive' to pull submodule on clone
+(or 'git submodule update --init --recursive' if you've already cloned.)
 
-1) Install app by running the following command in the root directory:
+2) Install app by running the following command in the root directory:
 
 $> python setup.py install
 
 The yahoo consumer secret and key required are obtainable from https://developer.yahoo.com.
 
-
-2) Run the app in your terminal with:
+3) Run the app in your terminal with:
 
 $> yfantasy
 
