@@ -9,6 +9,9 @@ TEAM_ID = "60802"
 URL_BASE = "http://fantasysports.yahooapis.com/fantasy/v2/league/%s.l.%s/" % \
     (GAME_KEY, TEAM_ID)
 TAG_PREFIX = "{http://fantasysports.yahooapis.com/fantasy/v2/base.rng}"
+
+GOALIE_CATEGORIES = ["19", "23", "26", "27"]
+
 STATS = {
     "1": "G",
     "2": "A",
@@ -42,12 +45,15 @@ def get_element(elem, name, prefix):
     return r[0]
 
 
-def category_winners(people_points, max_order):
+def category_winners(people_points, max_order, excluded_people=[]):
     people = []
     max_set = False
     max_value = 0
 
     for k, v in people_points.iteritems():
+        if k in excluded_people:
+            continue
+
         v = float(v)
         if not max_set:
             max_set = True
@@ -60,7 +66,6 @@ def category_winners(people_points, max_order):
             people.append(k)
 
     return [people, max_value]
-
 
 def parse_api_response(xml, prefix):
     results = {}
@@ -81,13 +86,26 @@ def parse_api_response(xml, prefix):
 
     return results
 
+def get_teams(xml, prefix):
+    teams = []
 
-def team_weekly_wins(team_list, comparison_dictionary, stats_dictionary=None):
+    root = ElementTree.fromstring(xml)
+    for elem in root.iter("%steam" % prefix):
+        name = get_element(elem, "name", prefix).text
+        teams.append(name)
+
+    return teams
+
+
+def team_weekly_wins(team_list, excluded_goalie_people, comparison_dictionary, goalie_categories, stats_dictionary=None):
     team_counts = {}
-    print ""
 
     for k, v in team_list.iteritems():
-        winners = category_winners(v, comparison_dictionary[k])
+        if k in goalie_categories:
+            winners = category_winners(v, comparison_dictionary[k], excluded_goalie_people)
+        else:
+            winners = category_winners(v, comparison_dictionary[k])
+
         if stats_dictionary:
             print winners[1], stats_dictionary[k], winners[0]
 
@@ -100,6 +118,30 @@ def team_weekly_wins(team_list, comparison_dictionary, stats_dictionary=None):
     return team_counts
 
 
+def get_excluced_goalie_people(teams):
+    excluded_teams = []
+
+    while(1):
+        for (i, team) in enumerate(teams):
+            print "[%s] - %s" % (i, team)
+
+        print ""
+        print "Currently Excluded Teams: %s" % (", ".join(map(str, excluded_teams)))
+        print "(number to select, x to quit)"
+        exclude = raw_input("Which player did not get enough goalie showings? ")
+
+        if exclude == "x":
+            return excluded_teams
+
+        try:
+            team = teams[int(exclude)]
+            excluded_teams.append(team)
+            teams.remove(team)
+        except ValueError:
+            print "Invalid option %s. Please enter an integer or 'x'" % exclude
+
+
+
 def weekly_winner():
     api = yahooapi.YahooAPI(
         keyfile=join(dirname(__file__), '../../auth'),
@@ -110,7 +152,15 @@ def weekly_winner():
 
     results = parse_api_response(response.content, TAG_PREFIX)
 
-    team_counts = team_weekly_wins(results, COMPARISON, STATS)
+    response2 = api.request("%steams" % (URL_BASE))
+    teams = get_teams(response2.content, TAG_PREFIX)
+
+    excluded_goalie_people = get_excluced_goalie_people(teams)
+
+    print ""
+    print "Scoreboard for Week %s" % (week)
+    print ""
+    team_counts = team_weekly_wins(results, excluded_goalie_people, COMPARISON, GOALIE_CATEGORIES, STATS)
 
     print "Final Winners"
     total_winner = category_winners(team_counts, True)
